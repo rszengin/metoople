@@ -12,42 +12,38 @@
 
 namespace rsz {
 
-	template<int N> using element = std::integral_constant<int, N>;
 	
 	template<int Count, typename ElemType = void, typename... Types>
-	struct MeToople : MeToople<Count, Types...> {
+	class MeToople : protected MeToople<Count, Types...> {
 		using super = MeToople<Count, Types...>;
 		const ElemType& elem;
-
+		static constexpr std::size_t index{ (Count - sizeof...(Types) - 1) };
+	public:
 		MeToople(const ElemType& elem, const Types&... args)
 			: MeToople<Count, Types...>(args...), elem(elem) {}
+	protected:
+		template<std::size_t N> 
+		using element = std::integral_constant<std::size_t, N>;
 
-		// To make all overloads visible;
-		using super::get;
+		// Creating a function overload for every instance
+		const ElemType& get(element<index>) { return elem; };
 
-		const ElemType& get(element<(Count - sizeof...(Types) - 1)>) {
-			return elem;
-		}
+		using super::get; // Making all overloads visible
+	public:
+		template<std::size_t Index> 
+		auto get() { return get(element<Index> {}); };
 
-		template<int Index> auto get() {
-			return get(element<Index> {});
-		};
-
-
+		std::size_t size() { return Count; };
 	};
-	template<int Count> struct MeToople<Count> { 
-		void get() { static_assert(false, "Index required"); }; 
+	template<int Count> class MeToople<Count> { 
+	protected:
+		void get() {}; // Required by the parent instance
 	};
 
 	template<typename... Types>
 	MeToople<sizeof...(Types), Types...> make_metoople(const Types&... args) {
 		return MeToople<sizeof...(Types), Types...>(args...);
 	}
-
-	template<int Index, typename Tuple> 
-	auto get(const Tuple& tuple) {
-		return tuple.get(element<Index> {});
-	};
 
 } // namespace rsz
 
