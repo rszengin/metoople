@@ -16,19 +16,28 @@ int main()
 	auto view = [](const auto& elem) { 
 		std::cout << typeid(elem).name() << "(" << elem << ") "; };
 
-	std::cout << d_u_t.elem << ", " 
-		<< d_u_t.super::elem << ", "
-		<< d_u_t.super::super::elem << ", " 
-		<< d_u_t.super::super::super::elem << ", "
-		<< d_u_t.super::super::super::super::elem << std::endl;
+	view(d_u_t.elem);
+	view(d_u_t.super::elem);
+	view(d_u_t.super::super::elem);
+	view(d_u_t.super::super::super::elem);
+	view(d_u_t.super::super::super::super::elem);
+	std::cout << std::endl;
 
-	//view(d_u_t.get()); // Error!
 	view(d_u_t.get(element<0>{}));
 	view(d_u_t.get(element<1>{}));
 	view(d_u_t.get(element<2>{}));
 	view(d_u_t.get(element<3>{}));
 	view(d_u_t.get(element<4>{}));
 	std::cout << std::endl;
+
+	view(d_u_t.get<0>());
+	view(d_u_t.get<1>());
+	view(d_u_t.get<2>());
+	view(d_u_t.get<3>());
+	view(d_u_t.get<4>());
+	std::cout << std::endl;
+
+	//d_u_t.get(); // Error! Index required.
 	
     return 0;
 }

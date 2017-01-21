@@ -28,13 +28,26 @@ namespace rsz {
 		const ElemType& get(element<(Count - sizeof...(Types) - 1)>) {
 			return elem;
 		}
+
+		template<int Index> auto get() {
+			return get(element<Index> {});
+		};
+
+
 	};
-	template<int Count> struct MeToople<Count> { void get() { static_assert(false, "Error!"); }; };
+	template<int Count> struct MeToople<Count> { 
+		void get() { static_assert(false, "Index required"); }; 
+	};
 
 	template<typename... Types>
 	MeToople<sizeof...(Types), Types...> make_metoople(const Types&... args) {
 		return MeToople<sizeof...(Types), Types...>(args...);
 	}
+
+	template<int Index, typename Tuple> 
+	auto get(const Tuple& tuple) {
+		return tuple.get(element<Index> {});
+	};
 
 } // namespace rsz
 
