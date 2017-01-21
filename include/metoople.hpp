@@ -12,7 +12,6 @@
 
 namespace rsz {
 
-	
 	template<int Count, typename ElemType = void, typename... Types>
 	class MeToople : protected MeToople<Count, Types...> {
 		using super = MeToople<Count, Types...>;
