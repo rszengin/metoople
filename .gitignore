@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/metoople_test/metoople_test.VC.VC.opendb
+/metoople_test/.vs/metoople_test/v14
+/metoople_test/Debug
+/metoople_test/metoople_test/Debug/metoople_test.tlog
+/metoople_test/metoople_test/Debug
+/metoople_test/metoople_test/metoople_test.vcxproj.user
+/metoople_test/metoople_test/metoople_test.vcxproj.filters
+/metoople_test/metoople_test/metoople_test.vcxproj
+/metoople_test/metoople_test.VC.db
+/metoople_test/metoople_test.sln
