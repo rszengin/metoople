@@ -16,38 +16,36 @@ namespace rsz {
 	template<int Count, typename ElemType = void, typename... Types>
 	class MeToople : protected MeToople<Count, Types...> {
 		using super = MeToople<Count, Types...>;
-		const ElemType& elem;
-		static constexpr std::size_t index{ (Count - sizeof...(Types) - 1) };
+		static constexpr std::size_t INDEX{ (Count - sizeof...(Types) - 1) };
+
+		template<std::size_t N, std::size_t M> struct selector {};
+
+		ElemType&& elem;
 	public:
-		MeToople(const ElemType& elem, const Types&... args)
+		MeToople(ElemType&& elem, const Types&&... args)
 			: MeToople<Count, Types...>(args...), elem(elem) {}
 	protected:
 		template<std::size_t N> 
 		using element = std::integral_constant<std::size_t, N>;
 
 		// Creating a function overload for every instance
-		const ElemType& get(element<index>) { return elem; };
+		ElemType& get(element<INDEX>) { return elem; };
 
 		using super::get; // Making all overloads visible
 	public:
 		constexpr std::size_t size() const { return Count; };
 
 		template<std::size_t Index> 
-		auto get() { 
+		decltype(auto) get() { 
 			static_assert(Index < Count, "get<Index>() : Index is out of range.");
 			return (get(element<Index> {})); 
 		};
 
 		template<std::size_t... Indices>
 		decltype(auto) collect() {
-			auto locol = make_metoople(get<Indices>()...);
-			std::cout << "locol : ";
-			locol.foreach([](auto x) {std::cout << x << " "; });
-			std::cout << std::endl;
-			return locol;
+			return make_metoople(get<Indices>()...);
 		}
 	private:
-		template<std::size_t N, std::size_t M> struct selector {};
 
 		template<std::size_t Current, std::size_t Final, typename Func>
 		void foreach_helper(selector<Current, Final>, Func func) {
@@ -70,7 +68,7 @@ namespace rsz {
 	};
 
 	template<typename... Types>
-	MeToople<sizeof...(Types), Types...> make_metoople(const Types&... args) {
+	MeToople<sizeof...(Types), Types...> make_metoople(Types&&... args) {
 		return MeToople<sizeof...(Types), Types...>(args...);
 	}
 
