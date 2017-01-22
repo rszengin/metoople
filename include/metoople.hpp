@@ -37,7 +37,7 @@ namespace rsz {
 
 		template<std::size_t Index> 
 		decltype(auto) get() { 
-			static_assert(Index < Count, "get<Index>() : Index is out of range.");
+			static_assert(Index < Count, "get() : Index is out of range.");
 			return (get(element<Index> {})); 
 		};
 
@@ -46,20 +46,25 @@ namespace rsz {
 			return make_metoople(get<Indices>()...);
 		}
 	private:
-
 		template<std::size_t Current, std::size_t Final, typename Func>
-		void foreach_helper(selector<Current, Final>, Func func) {
+		void for_helper(selector<Current, Final>, Func func) {
 			func(get<Current>());
-			foreach_helper(selector<Current + 1, Final> {}, func);
+			for_helper(selector<Current + 1, Final> {}, func);
 		};
 		template<std::size_t Final, typename Func>
-		void foreach_helper(selector<Final, Final>, Func func) {
+		void for_helper(selector<Final, Final>, Func func) {
 			func(get<Final>());
 		};
 	public:
 		template<typename Func>
 		void foreach(Func func) {
-			foreach_helper(selector<0, Count - 1> {}, func);
+			for_helper(selector<0, Count - 1> {}, func);
+		}
+
+		template<std::size_t Initial, std::size_t Final = (Count - 1), typename Func>
+		void for_range(Func func) {
+			static_assert((Final < Count) && (Initial <= Final), "for_range() : Range definition error.");
+			for_helper(selector<Initial, Final> {}, func);
 		}
 	};
 	template<int Count> class MeToople<Count> {

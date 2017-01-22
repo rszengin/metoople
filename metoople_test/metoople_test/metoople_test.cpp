@@ -33,11 +33,11 @@ int main()
 	d_u_t.foreach(view);
 	std::cout << std::endl;
 
-	auto manual_collection = make_metoople(d_u_t.get<0>(), d_u_t.get<2>(), d_u_t.get<3>());
+	auto manual_collection = make_metoople(d_u_t.get<0>(), d_u_t.get<2>(), d_u_t.get<4>());
 	manual_collection.foreach(view);
 	std::cout << std::endl;
 
-	auto&& collection = d_u_t.collect<0, 2, 3>();
+	auto&& collection = d_u_t.collect<0, 2, 4>();
 	std::cout << "Type info of \"collection\" : " << typeid(collection).name() << std::endl;
 	view(collection.get<0>());
 	view(collection.get<1>());
@@ -46,6 +46,14 @@ int main()
 	collection.foreach(view);
 	std::cout << std::endl;
 
+	d_u_t.collect<0, 2, 4>().foreach(view);
+	std::cout << std::endl;
+
+	d_u_t.for_range<0>(view);
+	std::cout << std::endl;
+
+	d_u_t.for_range<1,3>(view);
+	std::cout << std::endl;
 
     return 0;
 }
