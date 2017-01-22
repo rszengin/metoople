@@ -9,6 +9,7 @@
 #define METOOPLE_HPP
 
 #include <type_traits>
+#include <utility>
 
 namespace rsz {
 
@@ -29,12 +30,41 @@ namespace rsz {
 
 		using super::get; // Making all overloads visible
 	public:
-		template<std::size_t Index> 
-		auto get() { return get(element<Index> {}); };
+		constexpr std::size_t size() const { return Count; };
 
-		std::size_t size() { return Count; };
+		template<std::size_t Index> 
+		auto get() { 
+			static_assert(Index < Count, "get<Index>() : Index is out of range.");
+			return (get(element<Index> {})); 
+		};
+
+		template<std::size_t... Indices>
+		decltype(auto) collect() {
+			auto locol = make_metoople(get<Indices>()...);
+			std::cout << "locol : ";
+			locol.foreach([](auto x) {std::cout << x << " "; });
+			std::cout << std::endl;
+			return locol;
+		}
+	private:
+		template<std::size_t N, std::size_t M> struct selector {};
+
+		template<std::size_t Current, std::size_t Final, typename Func>
+		void foreach_helper(selector<Current, Final>, Func func) {
+			func(get<Current>());
+			foreach_helper(selector<Current + 1, Final> {}, func);
+		};
+		template<std::size_t Final, typename Func>
+		void foreach_helper(selector<Final, Final>, Func func) {
+			func(get<Final>());
+		};
+	public:
+		template<typename Func>
+		void foreach(Func func) {
+			foreach_helper(selector<0, Count - 1> {}, func);
+		}
 	};
-	template<int Count> class MeToople<Count> { 
+	template<int Count> class MeToople<Count> {
 	protected:
 		void get() {}; // Required by the parent instance
 	};
