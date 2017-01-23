@@ -46,25 +46,24 @@ namespace rsz {
 			return make_metoople(get<Indices>()...);
 		}
 	private:
-		template<std::size_t Current, std::size_t Final, typename Func>
-		void for_helper(selector<Current, Final>, Func func) {
+		/* The range is including Final */
+		template<std::size_t Current, std::size_t Step, std::size_t Final, typename Func>
+		std::enable_if_t<(Current <= Final)> for_helper(Func func) {
 			func(get<Current>());
-			for_helper(selector<Current + 1, Final> {}, func);
+			for_helper<Current + Step, Step, Final>(func);
 		};
-		template<std::size_t Final, typename Func>
-		void for_helper(selector<Final, Final>, Func func) {
-			func(get<Final>());
-		};
+		template<std::size_t Current, std::size_t Step, std::size_t Final, typename Func>
+		std::enable_if_t<(Current > Final)> for_helper(Func func) {};
 	public:
 		template<typename Func>
 		void foreach(Func func) {
-			for_helper(selector<0, Count - 1> {}, func);
+			for_helper<0, 1, Count - 1>(func);
 		}
 
-		template<std::size_t Initial, std::size_t Final = (Count - 1), typename Func>
+		template<std::size_t Initial, std::size_t Step = 1, std::size_t Final = (Count - 1), typename Func>
 		void for_range(Func func) {
-			static_assert((Final < Count) && (Initial <= Final), "for_range() : Range definition error.");
-			for_helper(selector<Initial, Final> {}, func);
+			static_assert((Final < Count), "for_range() : Range error.");
+			for_helper<Initial, Step, Final>(func);
 		}
 	};
 	template<int Count> class MeToople<Count> {

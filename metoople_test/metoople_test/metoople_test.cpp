@@ -52,7 +52,13 @@ int main()
 	d_u_t.for_range<0>(view);
 	std::cout << std::endl;
 
-	d_u_t.for_range<1,3>(view);
+	d_u_t.for_range<1, 1, 3>(view);
+	std::cout << std::endl;
+
+	d_u_t.for_range<0, 2>(view);
+	std::cout << std::endl;
+
+	d_u_t.for_range<1, 2>(view);
 	std::cout << std::endl;
 
     return 0;
