@@ -5,8 +5,8 @@
  * rsz@gufatek.com
  */
 
-#ifndef METOOPLE_HPP
-#define METOOPLE_HPP
+#ifndef METOOPLE_HPP_
+#define METOOPLE_HPP_
 
 #include <type_traits>
 #include <utility>
@@ -78,4 +78,4 @@ namespace rsz {
 
 } // namespace rsz
 
-#endif // METOOPLE_HPP
+#endif // METOOPLE_HPP_
