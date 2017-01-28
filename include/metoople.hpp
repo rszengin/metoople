@@ -13,37 +13,45 @@
 
 namespace rsz {
 
-	template<int Count, typename ElemType = void, typename... Types>
-	class MeToople : protected MeToople<Count, Types...> {
-		using super = MeToople<Count, Types...>;
-		static constexpr std::size_t INDEX{ (Count - sizeof...(Types) - 1) };
+	template<std::size_t N> struct Element {};
 
-		template<std::size_t N, std::size_t M> struct selector {};
-
-		ElemType&& elem;
-	public:
-		MeToople(ElemType&& elem, const Types&&... args)
-			: MeToople<Count, Types...>(args...), elem(elem) {}
+	template<typename T, typename... Types>
+	class Metoople_base : protected Metoople_base<Types...> {
+		using parent = Metoople_base<Types...>;
+		T& elem;
 	protected:
-		template<std::size_t N> 
-		using element = std::integral_constant<std::size_t, N>;
+		Metoople_base(T& elem, Types&... others)
+			: elem(elem), parent(others...) {}
+
+		using parent::get; // Making all overloads visible
 
 		// Creating a function overload for every instance
-		ElemType& get(element<INDEX>) { return elem; };
+		T& get(Element<sizeof...(Types)>) { return elem; }
+	};
 
-		using super::get; // Making all overloads visible
+	template<typename T>
+	class Metoople_base<T> {
+		T& elem;
+	protected:
+		Metoople_base(T& elem) : elem(elem) {}
+
+		// Creating a function overload for every instance
+		T& get(Element<0>) { return elem; }
+	};
+
+	template<typename... Types>
+	class Metoople : private Metoople_base<Types...> {
+		using parent = Metoople_base<Types...>;
+		static constexpr std::size_t COUNT{ sizeof...(Types) };
 	public:
-		constexpr std::size_t size() const { return Count; };
+		Metoople(Types&&... args) : parent(args...) {}
 
-		template<std::size_t Index> 
+		constexpr std::size_t size() const { return COUNT; }
+
+		template<std::size_t Index>
 		decltype(auto) get() { 
-			static_assert(Index < Count, "get() : Index is out of range.");
-			return (get(element<Index> {})); 
-		};
-
-		template<std::size_t... Indices>
-		decltype(auto) collect() {
-			return make_metoople(get<Indices>()...);
+			static_assert(Index < COUNT, "get() : Index is out of range.");
+			return (parent::get(Element<(COUNT - Index - 1)>{})); 
 		}
 	private:
 		/* The range is including Final */
@@ -57,23 +65,24 @@ namespace rsz {
 	public:
 		template<typename Func>
 		void foreach(Func func) {
-			for_helper<0, 1, Count - 1>(func);
+			for_helper<0, 1, COUNT - 1>(func);
 		}
 
-		template<std::size_t Initial, std::size_t Step = 1, std::size_t Final = (Count - 1), typename Func>
+		/* (Final == -1) -> Final = COUNT - 1 */
+		template<std::size_t Initial, std::size_t Final = -1, std::size_t Step = 1, typename Func>
 		void for_range(Func func) {
-			static_assert((Final < Count), "for_range() : Range error.");
-			for_helper<Initial, Step, Final>(func);
+			for_helper<Initial, Step, ((Final < COUNT) ? Final : (COUNT - 1))>(func);
 		}
-	};
-	template<int Count> class MeToople<Count> {
-	protected:
-		void get() {}; // Required by the parent instance
+
+		template<std::size_t... Indices>
+		decltype(auto) collect() {
+			return make_metoople(get<Indices>()...);
+		}
 	};
 
 	template<typename... Types>
-	MeToople<sizeof...(Types), Types...> make_metoople(Types&&... args) {
-		return MeToople<sizeof...(Types), Types...>(args...);
+	Metoople<Types...> make_metoople(Types&&... args) {
+		return Metoople<Types...>(std::forward<Types>(args)...);
 	}
 
 } // namespace rsz
